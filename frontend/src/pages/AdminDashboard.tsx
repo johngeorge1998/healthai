@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Header from "@/components/Header";
 import AppointmentTable from "@/components/AppointmentTable";
@@ -10,12 +11,15 @@ import {
   ClockIcon,
   XCircleIcon,
   CalendarDaysIcon,
+  ChevronDownIcon,
+  ChevronUpIcon,
 } from "@heroicons/react/24/outline";
 import { useToast } from "@/contexts/ToastContext";
 
 export default function AdminDashboard() {
   const queryClient = useQueryClient();
   const { showToast } = useToast();
+  const [isFeedbackChartOpen, setIsFeedbackChartOpen] = useState(false);
 
   const { data: appointments = [], isLoading: appointmentsLoading } = useQuery({
     queryKey: ["allAppointments"],
@@ -137,45 +141,59 @@ export default function AdminDashboard() {
         </div>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-8 animate-in slide-in-from-bottom duration-500 delay-500">
-          <div className="p-6 border-b border-gray-100">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <ChartBarIcon className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  AI Performance Analytics
-                </h2>
-                <p className="text-gray-600">
-                  User feedback and satisfaction metrics
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-6">
-            {feedbacksLoading ? (
-              <div className="flex items-center justify-center py-16">
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-500"></div>
-                <span className="ml-3 text-gray-600">Loading analytics...</span>
-              </div>
-            ) : feedbacks.length === 0 ? (
-              <div className="text-center py-16">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <ChartBarIcon className="h-8 w-8 text-gray-400" />
+          <button
+            onClick={() => setIsFeedbackChartOpen(!isFeedbackChartOpen)}
+            className="w-full p-6 border-b border-gray-100 hover:bg-gray-50 transition-colors duration-200"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                  <ChartBarIcon className="h-5 w-5 text-white" />
                 </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No feedback data yet
-                </h3>
-                <p className="text-gray-600">
-                  Feedback data will appear here once users complete their
-                  appointments
-                </p>
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900">
+                    AI Performance Analytics
+                  </h2>
+                  <p className="text-gray-600">
+                    User feedback and satisfaction metrics
+                  </p>
+                </div>
               </div>
-            ) : (
-              <FeedbackChart feedbacks={feedbacks} />
-            )}
-          </div>
+              {isFeedbackChartOpen ? (
+                <ChevronUpIcon className="h-5 w-5 text-gray-400" />
+              ) : (
+                <ChevronDownIcon className="h-5 w-5 text-gray-400" />
+              )}
+            </div>
+          </button>
+
+          {isFeedbackChartOpen && (
+            <div className="p-6 animate-in slide-in-from-top duration-300">
+              {feedbacksLoading ? (
+                <div className="flex items-center justify-center py-16">
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-green-500"></div>
+                  <span className="ml-3 text-gray-600">
+                    Loading analytics...
+                  </span>
+                </div>
+              ) : feedbacks.length === 0 ? (
+                <div className="text-center py-16">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <ChartBarIcon className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    No feedback data yet
+                  </h3>
+                  <p className="text-gray-600">
+                    Feedback data will appear here once users complete their
+                    appointments
+                  </p>
+                </div>
+              ) : (
+                <FeedbackChart feedbacks={feedbacks} />
+              )}
+            </div>
+          )}
         </div>
 
         <div className="p-3 bg-white rounded-2xl shadow-sm border border-gray-100 animate-in slide-in-from-bottom duration-500 delay-600">

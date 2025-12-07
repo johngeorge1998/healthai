@@ -66,7 +66,7 @@ export default function Login() {
               HealthAI
             </Link>
             <div className="flex items-center space-x-4">
-              <span className="text-secondary">Don't have an account?</span>
+              <span className="hidden md:inline text-secondary">Don't have an account?</span>
               <Link to="/signup" className="btn-secondary">
                 Sign up
               </Link>

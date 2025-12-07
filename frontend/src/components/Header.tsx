@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useAuthStore } from "@/store/useStore";
 import { Link } from "react-router-dom";
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon, BellIcon } from "@heroicons/react/24/outline";
+import { useQuery } from "@tanstack/react-query";
+import { appointmentAPI } from "@/lib/api";
 
 interface Props {
   onAskAI?: () => void;
@@ -10,6 +12,16 @@ interface Props {
 export default function Header({ onAskAI }: Props) {
   const { user, logout } = useAuthStore();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const { data: appointments = [] } = useQuery({
+    queryKey: ["allAppointments"],
+    queryFn: () => appointmentAPI.getAllAppointments().then((res) => res.data),
+    enabled: user?.role === "admin",
+  });
+
+  const pendingCount = appointments.filter(
+    (apt) => apt.status === "pending"
+  ).length;
 
   if (!user) {
     return (
@@ -100,6 +112,29 @@ export default function Header({ onAskAI }: Props) {
                 Ask AI
               </button>
             )}
+            {user.role === "admin" && (
+              <div className="relative group">
+                <button
+                  className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                  aria-label="Notifications"
+                >
+                  <BellIcon className="h-6 w-6" />
+                  {pendingCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                      {pendingCount > 9 ? "9+" : pendingCount}
+                    </span>
+                  )}
+                </button>
+                <div className="absolute right-0 top-full mt-2 px-3 py-2 bg-gray-900 text-white text-sm rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50">
+                  {pendingCount > 0
+                    ? `You've ${pendingCount} appointment${
+                        pendingCount !== 1 ? "s" : ""
+                      } to review`
+                    : "No new appointment requests"}
+                  <div className="absolute -top-1 right-4 w-2 h-2 bg-gray-900 rotate-45"></div>
+                </div>
+              </div>
+            )}
             <button
               onClick={logout}
               className="text-gray-600 hover:text-gray-900 transition-colors duration-200 text-sm font-medium cursor-pointer"
@@ -136,6 +171,23 @@ export default function Header({ onAskAI }: Props) {
                 >
                   Ask AI
                 </button>
+              )}
+              {user.role === "admin" && (
+                <div className="relative flex items-center space-x-2 px-2 py-1">
+                  <BellIcon className="h-6 w-6 text-gray-600" />
+                  <span className="text-gray-600 text-sm font-medium">
+                    {pendingCount > 0
+                      ? `You've ${pendingCount} appointment${
+                          pendingCount !== 1 ? "s" : ""
+                        } to review`
+                      : "No pending appointments"}
+                  </span>
+                  {pendingCount > 0 && (
+                    <span className="bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                      {pendingCount > 9 ? "9+" : pendingCount}
+                    </span>
+                  )}
+                </div>
               )}
               <button
                 onClick={() => {
