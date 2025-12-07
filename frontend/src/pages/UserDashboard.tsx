@@ -160,28 +160,7 @@ export default function UserDashboard() {
                   Start a conversation with our AI to book your first
                   appointment
                 </p>
-                <div className="flex flex-col gap-3">
-                  <button
-                    onClick={() => setShowChat(true)}
-                    className="btn-primary"
-                  >
-                    Ask AI for Help
-                  </button>
-                  <button
-                    onClick={() => {
-                      setConclusion({
-                        disease: "Test Disease",
-                        severity: "medium",
-                        medications: ["Test Med 1", "Test Med 2"],
-                        hospitals: ["Test Hospital 1", "Test Hospital 2"],
-                      });
-                      setShowBooking(true);
-                    }}
-                    className="btn-secondary"
-                  >
-                    Test Booking Modal
-                  </button>
-                </div>
+               
               </div>
             ) : (
               <div>
